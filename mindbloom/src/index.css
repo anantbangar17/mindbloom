@@ -1,0 +1,21 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #0d1117;
+  color: #e8e4dc;
+  min-height: 100vh;
+}
+:root {
+  --sage: #7baa7a;
+  --sage-light: #a8c5a0;
+  --sage-dark: #4a7a4a;
+  --warm: #c8a97a;
+  --warm-light: #e8d0a8;
+  --warm-dark: #9a7a4a;
+  --cream: #f0ebe0;
+  --muted: #8a8a82;
+  --surface: #161b22;
+  --surface2: #1c2230;
+  --border: rgba(120,130,110,0.18);
+  --info: #7aaac8;
+}
