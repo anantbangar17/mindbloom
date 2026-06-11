@@ -188,9 +188,11 @@ function App() {
     relationship: <RelationshipAdvisor user={user} />,
   };
 
+  // Add this one state line right above your return statement if not already defined:
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: mainBg }}>
-      {/* MOVING BLINKING CURSOR STYLE INJECTED HERE */}
+    <div className="app-container" style={{ display: 'flex', minHeight: '100vh', background: mainBg, position: 'relative' }}>
       <style>{`
         @keyframes blinkCursor {
           0%, 100% { opacity: 1; }
@@ -203,29 +205,112 @@ function App() {
           font-weight: 300;
           animation: blinkCursor 0.8s infinite;
         }
+
+        /* Hamburger button hidden on desktop workspace monitors */
+        .hamburger-menu-btn {
+          display: none;
+        }
+
+        /* ===================================================
+           PREMIUM MOBILE HAMBURGER OVERLAY DRAWERS SPECIFICATION
+           =================================================== */
+        @media (max-width: 768px) {
+          /* Force sidebar to act as an offline absolute off-canvas slide panel drawer */
+          .sidebar-nav {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            z-index: 2000 !important;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.3);
+          }
+
+          /* Reveal hidden sidebar drawer wrapper active panel flag */
+          .sidebar-nav.open {
+            transform: translateX(0) !important;
+          }
+
+          /* Render display switches for tracking mobile drawer close button triggers */
+          .menu-close-btn {
+            display: block !important;
+          }
+
+          /* Unhide mobile drawer dashboard action triggers */
+          .hamburger-menu-btn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            background: ${chipBg};
+            border: 1px solid ${chipBorder};
+            color: ${textColor};
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+          }
+
+          /* Compress layout structure across tracking cards rows */
+          .main-header {
+            padding: 1rem !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+          }
+
+          .header-top-row {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+          }
+
+          .header-controls {
+            width: 100% !important;
+            justify-content: flex-start !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+          }
+        }
       `}</style>
 
-      <Sidebar view={view} setView={setView} user={user} onLogout={handleLogout} onOpenSettings={() => setShowSettings(true)} theme={theme} />
+      {/* Connect drawer states directly into Sidebar properties */}
+      <Sidebar 
+        view={view} 
+        setView={setView} 
+        user={user} 
+        onLogout={handleLogout} 
+        onOpenSettings={() => setShowSettings(true)} 
+        theme={theme} 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+      />
 
-      {/* CHANGE 1: Added display flex and flexDirection column here */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: mainBg }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: mainBg, width: '100%' }}>
         {/* Header */}
-        <div style={{ padding: '1.5rem 2rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: headerBg }}>
-          {/* Greeting */}
-          <div style={{ opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
-            <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: '1.6rem', color: textColor, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '1.2rem' }}>{greetEmoji}</span>
-              {/* UPDATED GREETING IN MOVING CURSOR FORM */}
-              <span>{typedGreeting}</span>
-              <span className="portfolio-cursor">|</span>
-            </div>
-            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.8rem', fontWeight: 300, color: mutedColor, marginTop: 2 }}>
-              {subtitles[view]}
+        <div className="main-header" style={{ padding: '1.5rem 2rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: headerBg }}>
+          
+          {/* Top Row: Contains Hamburger Menu & Greeting Info */}
+          <div className="header-top-row" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button className="hamburger-menu-btn" onClick={() => setIsMenuOpen(true)}>
+              &#9776;
+            </button>
+
+            <div style={{ opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
+              <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: '1.6rem', color: textColor, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: '1.2rem' }}>{greetEmoji}</span>
+                <span>{typedGreeting}</span>
+                <span className="portfolio-cursor">|</span>
+              </div>
+              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.8rem', fontWeight: 300, color: mutedColor, marginTop: 2 }}>
+                {subtitles[view]}
+              </div>
             </div>
           </div>
 
           {/* Right controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {user?.profile?.occupation && (
               <div style={{ fontSize: '0.72rem', color: '#7baa7a', background: 'rgba(123,170,122,0.1)', border: '1px solid rgba(123,170,122,0.2)', borderRadius: 99, padding: '4px 12px' }}>
                 {user.profile.occupation}
@@ -242,20 +327,17 @@ function App() {
               <span style={{ fontSize: '0.7rem', textTransform: 'capitalize' }}>{theme}</span>
             </button>
 
-            {/* CHANGE 2: Removed the top-right Settings button completely from here */}
-
             {/* Clickable date */}
             <button onClick={() => setShowDateViewer(true)} style={{
               fontSize: '0.75rem', color: mutedColor, background: chipBg,
               border: `1px solid ${chipBorder}`, borderRadius: 20, padding: '4px 12px',
               cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s',
             }}>
-              📅 {today}
+              🗓️ {today}
             </button>
           </div>
         </div>
 
-        {/* CHANGE 3: Added flex: 1 to this view container wrapper to push the footer down */}
         <div style={{ padding: '1.5rem 2rem', flex: 1 }}>
           {views[view]}
         </div>
