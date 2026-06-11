@@ -47,7 +47,7 @@ function Focus({ tasks, toggleTask, addTask, removeTask }) {
   const card = { background: '#161b22', border: '1px solid rgba(120,130,110,0.18)', borderRadius: 14, padding: '1.5rem', fontFamily: 'DM Sans, sans-serif' };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '1rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
 
       {/* Timer */}
       <div style={{ ...card, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

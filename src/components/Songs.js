@@ -116,7 +116,7 @@ function Songs({ selectedMood }) {
         <div style={{ fontSize: '0.78rem', color: '#8a8a82', marginBottom: '0.875rem' }}>
           We'll search for "{buildSearchQuery()}" in your chosen app.
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
           {MUSIC_APPS.map(app => (
             <button key={app.name} onClick={() => openInApp(app)} style={{
               display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px',

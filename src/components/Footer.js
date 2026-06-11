@@ -11,7 +11,7 @@ const CHANGELOG = [
   { version: 'v1.5.0', date: 'Jun 2025', notes: 'Added changelog, feedback button, social links, privacy notice, report a bug, app icon' },
 ];
 
-function Footer({ theme }) {
+function Footer({ theme, isMobile }) {
   const [expanded, setExpanded]       = useState(false);
   const [showChangelog, setChangelog] = useState(false);
   const [showPrivacy, setPrivacy]     = useState(false);
@@ -31,24 +31,24 @@ function Footer({ theme }) {
   const dot = <span style={{ margin: '0 6px', opacity: 0.35 }}>·</span>;
 
   const iconBtn = (label, emoji, onClick, title) => (
-    <button onClick={onClick} className="footer-chip" title={title || label} style={{
+    <button onClick={onClick} title={title || label} style={{
       display: 'flex', alignItems: 'center', gap: 5,
-      padding: '5px 12px', borderRadius: 99,
+      padding: '4px 10px', borderRadius: 99,
       background: 'transparent', border: `1px solid ${border2}`,
-      color: linkColor, fontFamily: 'DM Sans, sans-serif', fontSize: '0.72rem',
-      cursor: 'pointer',
+      color: linkColor, fontFamily: 'DM Sans, sans-serif', fontSize: '0.7rem',
+      cursor: 'pointer', transition: 'all 0.2s',
     }}>
       <span>{emoji}</span> {label}
     </button>
   );
 
   const socialLink = (href, emoji, label) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="footer-chip" style={{
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{
       display: 'flex', alignItems: 'center', gap: 5,
-      padding: '5px 12px', borderRadius: 99,
+      padding: '4px 10px', borderRadius: 99,
       background: 'transparent', border: `1px solid ${border2}`,
-      color: linkColor, fontFamily: 'DM Sans, sans-serif', fontSize: '0.72rem',
-      textDecoration: 'none',
+      color: linkColor, fontFamily: 'DM Sans, sans-serif', fontSize: '0.7rem',
+      textDecoration: 'none', transition: 'all 0.2s',
     }}>
       <span>{emoji}</span> {label}
     </a>
@@ -81,106 +81,46 @@ function Footer({ theme }) {
 
   return (
     <>
-      <footer style={{ 
-        background: bg, 
-        borderTop: `1px solid ${border}`, 
-        padding: '1.5rem 2rem', 
-        fontFamily: 'DM Sans, sans-serif',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.25rem',
-        marginTop: 'auto'
-      }}>
-        
-        {/* Smooth Glow Hover Effects Style Block */}
-        <style>{`
-          .footer-chip {
-            transition: all 0.25s ease-in-out !important;
-            opacity: 0.65;
-          }
-          .footer-chip:hover {
-            opacity: 1 !important;
-            background: ${isDark ? 'rgba(123, 170, 122, 0.1)' : 'rgba(74, 122, 74, 0.08)'} !important;
-            border-color: ${textAccent} !important;
-            color: ${textAccent} !important;
-            box-shadow: 0 2px 8px ${isDark ? 'rgba(123, 170, 122, 0.15)' : 'rgba(74, 122, 74, 0.1)'};
-            transform: translateY(-1px);
-          }
-        `}</style>
+      <footer style={{ background: bg, borderTop: `1px solid ${border}`, padding: '0.75rem 2rem', fontFamily: 'DM Sans, sans-serif' }}>
 
-        {/* ROW 1: System Actions & Social Badges arranged professionally */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          
-          {/* App Utility Buttons */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            {iconBtn('Feedback', '💬', handleFeedback, 'Send feedback via email')}
-            {iconBtn('Report a bug', '🐛', handleBug, 'Report a bug via email')}
-            {iconBtn(copied ? 'Copied!' : 'Share app', copied ? '✓' : '🔗', handleShare, 'Copy app URL to clipboard')}
-            {iconBtn('Changelog', '📋', () => setChangelog(true), 'View version history')}
-            {iconBtn('Privacy', '🔒', () => setPrivacy(true), 'Privacy policy')}
-          </div>
-
-          {/* Social Profiles */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: '0.7rem', color: textMuted, marginRight: 4 }}>Connect:</span>
-            {socialLink('https://www.linkedin.com/in/anant-bangar', '💼', 'LinkedIn')}
-            {socialLink('https://www.hackerrank.com/profile/anantbangar2005', '⭐', 'HackerRank')}
-            {socialLink('https://leetcode.com/u/anantbangar2005', '🧩', 'LeetCode')}
-            {socialLink('mailto:anantbangar2005@gmail.com', '📧', 'Email')}
-          </div>
-        </div>
-
-        {/* ROW 2: System info with perfectly centered Copyright alignment */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          fontSize: '0.72rem', 
-          color: linkColor,
-          borderTop: `1px solid ${border}`,
-          paddingTop: '1rem',
-          position: 'relative',
-          minHeight: '24px'
-        }}>
-          
-          {/* Left Block: Version Info & Interactive Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, zIndex: 2 }}>
-            <span style={{ opacity: 0.6 }}>v1.5.0</span>
-            {dot}
-            <button onClick={() => setExpanded(e => !e)} style={{ background: 'transparent', border: 'none', color: textAccent, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: '0.72rem', padding: 0, textDecoration: 'underline' }}>
-              {expanded ? 'Less ↑' : 'More info ↓'}
-            </button>
-          </div>
-
-          {/* Center Block: Calculated Absolute Central Branding & Copyright */}
-          <div style={{ 
-            position: 'absolute', 
-            left: '50%', 
-            transform: 'translateX(-50%)', 
-            textAlign: 'center', 
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            zIndex: 1
-          }}>
-            <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '0.95rem', color: textAccent }}>
+        {/* Main row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '0.9rem', color: textAccent }}>
               mind<span style={{ color: '#c8a97a', fontStyle: 'italic' }}>bloom</span>
             </span>
-            <span style={{ fontSize: '0.72rem', color: textMain }}>
+            <span style={{ fontSize: '0.7rem', color: textMain }}>
               © {YEAR} <strong style={{ color: linkColor }}>Anant Bangar</strong>. All rights reserved.
             </span>
           </div>
-
-          {/* Right Block: User Metadata Location */}
-          <div style={{ opacity: 0.6, zIndex: 2 }}>
-            Rajasthan, India 🇮🇳
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0, fontSize: '0.7rem', color: linkColor }}>
+            <span style={{ opacity: 0.6 }}>v1.5.0</span>
+            {dot}
+            <span style={{ opacity: 0.6 }}>Rajasthan, India 🇮🇳</span>
+            {dot}
+            <button onClick={() => setExpanded(e => !e)} style={{ background: 'transparent', border: 'none', color: textAccent, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: '0.7rem', padding: 0 }}>
+              {expanded ? 'Less ↑' : 'More info ↓'}
+            </button>
           </div>
         </div>
 
-        {/* Expanded info dropdown container layout */}
+        {/* Action buttons row */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: '0.625rem', alignItems: 'center' }}>
+          {iconBtn('Feedback', '💬', handleFeedback)}
+          {iconBtn('Report bug', '🐛', handleBug)}
+          {iconBtn(copied ? 'Copied!' : 'Share', copied ? '✓' : '🔗', handleShare)}
+          {iconBtn('Changelog', '📋', () => setChangelog(true))}
+          {iconBtn('Privacy', '🔒', () => setPrivacy(true))}
+          {!isMobile && <span style={{ marginLeft: 4, fontSize: '0.65rem', color: textMuted }}>Connect:</span>}
+          {socialLink('https://www.linkedin.com/in/anant-bangar', '💼', isMobile ? '' : 'LinkedIn')}
+          {socialLink('https://www.hackerrank.com/profile/anantbangar2005', '⭐', isMobile ? '' : 'HackerRank')}
+          {socialLink('https://leetcode.com/u/anantbangar2005', '🧩', isMobile ? '' : 'LeetCode')}
+          {socialLink('mailto:anantbangar2005@gmail.com', '📧', isMobile ? '' : 'Email')}
+        </div>
+
+        {/* Expanded info */}
         {expanded && (
-          <div style={{ marginTop: '0.5rem', paddingTop: '1.25rem', borderTop: `1px solid ${border}`, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: `1px solid ${border}`, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1.25rem' }}>
             <div>
               <div style={{ fontSize: '0.63rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: textAccent, marginBottom: 6 }}>About</div>
               <div style={{ fontSize: '0.71rem', color: textMain, lineHeight: 1.7 }}>MindBloom is an AI-powered mental health & productivity companion — a personal project by Anant Bangar, B.Tech CSE student at Arya College of Engineering & IT, Jaipur (2023–2027).</div>

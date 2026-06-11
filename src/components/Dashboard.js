@@ -78,8 +78,8 @@ function Dashboard({ selectedMood, setSelectedMood, tasks, toggleTask, addTask, 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
 
-      {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem', marginBottom: '1rem' }}>
+      {/* Stat cards — auto-fit so they stack on mobile */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
         {statCard(
           "Today's mood",
           '#7baa7a',
@@ -104,8 +104,8 @@ function Dashboard({ selectedMood, setSelectedMood, tasks, toggleTask, addTask, 
         )}
       </div>
 
-      {/* Mood check-in + Task list */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+      {/* Mood check-in + Task list — stack on mobile */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
 
         {/* Mood */}
         <div style={{ background: '#161b22', border: '1px solid rgba(120,130,110,0.18)', borderRadius: 14, padding: '1.25rem' }}>

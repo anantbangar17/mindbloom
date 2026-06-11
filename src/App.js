@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useIsMobile } from './hooks/useIsMobile';
 import Login from './components/Login';
 import Onboarding from './components/Onboarding';
 import Sidebar from './components/Sidebar';
@@ -21,11 +22,10 @@ function applyTheme(theme) {
 }
 
 function App() {
-  // --- STATE HOOKS (ALL FIXED AT TOP LEVEL) ---
+  const isMobile = useIsMobile();
   const [authMode, setAuthMode] = useState('login');
   const [user, setUser] = useState(null);
   const [appStage, setAppStage] = useState('auth');
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // FIXED: Placed at root level
 
   const [view, setView] = useState('dashboard');
   const [selectedMood, setSelectedMood] = useState(null);
@@ -142,32 +142,9 @@ function App() {
   const today = now.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
   const displayName = user?.profile?.nickname || user?.name || 'there';
 
-  // Typewriter logic
-  const fullGreetingText = `Good ${greeting}, ${displayName}`;
-  const [typedGreeting, setTypedGreeting] = useState('');
-
-  useEffect(() => {
-    let currentIdx = 0;
-    let currentString = '';
-    setTypedGreeting('');
-    
-    const typingInterval = setInterval(() => {
-      if (currentIdx < fullGreetingText.length) {
-        currentString += fullGreetingText.charAt(currentIdx);
-        setTypedGreeting(currentString);
-        currentIdx++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 45);
-
-    return () => clearInterval(typingInterval);
-  }, [fullGreetingText]);
-
   const THEME_ICONS = { dark: '🌙', light: '☀️', system: '💻' };
   const THEME_CYCLE = { dark: 'light', light: 'system', system: 'dark' };
 
-  // --- EARLY RETURN BLOCKS (DUE TO HOOK STACK RULE, PLACED BELOW ALL USER HOOK DECLARATIONS) ---
   if (appStage === 'auth') return <Login isSignup={authMode === 'signup'} onLogin={handleLogin} onSwitch={() => setAuthMode(m => m === 'login' ? 'signup' : 'login')} />;
   if (appStage === 'onboarding') return <Onboarding user={user} onComplete={handleOnboardingComplete} />;
 
@@ -192,150 +169,79 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ display: 'flex', minHeight: '100vh', background: mainBg, position: 'relative' }}>
-      <style>{`
-        @keyframes blinkCursor {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .portfolio-cursor {
-          display: inline-block;
-          margin-left: 2px;
-          color: #7baa7a;
-          font-weight: 300;
-          animation: blinkCursor 0.8s infinite;
-        }
+    <div style={{ display: 'flex', minHeight: '100vh', background: mainBg }}>
+      <Sidebar view={view} setView={setView} user={user} onLogout={handleLogout}
+        onOpenSettings={() => setShowSettings(true)} theme={theme} isMobile={isMobile} />
 
-        .hamburger-menu-btn {
-          display: none;
-        }
-
-        /* ===================================================
-           MOBILE RESPONSIVE OFF-CANVAS HAMBURGER MENU RULES
-           =================================================== */
-        @media (max-width: 768px) {
-          .sidebar-nav {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            height: 100vh !important;
-            z-index: 2000 !important;
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 5px 0 25px rgba(0,0,0,0.3);
-          }
-
-          .sidebar-nav.open {
-            transform: translateX(0) !important;
-          }
-
-          .menu-close-btn {
-            display: block !important;
-          }
-
-          .hamburger-menu-btn {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            background: ${chipBg};
-            border: 1px solid ${chipBorder};
-            color: ${textColor};
-            font-size: 1.2rem;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-          }
-
-          .main-header {
-            padding: 1rem !important;
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 12px !important;
-          }
-
-          .header-top-row {
-            width: 100% !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-          }
-
-          .header-controls {
-            width: 100% !important;
-            justify-content: flex-start !important;
-            flex-wrap: wrap !important;
-            gap: 6px !important;
-          }
-        }
-      `}</style>
-
-      <Sidebar 
-        view={view} 
-        setView={setView} 
-        user={user} 
-        onLogout={handleLogout} 
-        onOpenSettings={() => setShowSettings(true)} 
-        theme={theme} 
-        isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
-      />
-
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: mainBg, width: '100%' }}>
+      <main style={{
+        flex: 1, overflowY: 'auto', background: mainBg,
+        paddingBottom: isMobile ? 70 : 0,   /* room for bottom nav */
+        minWidth: 0,
+      }}>
         {/* Header */}
-        <div className="main-header" style={{ padding: '1.5rem 2rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: headerBg }}>
-          
-          {/* Top Row: Contains Hamburger Menu & Greeting Info */}
-          <div className="header-top-row" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button className="hamburger-menu-btn" onClick={() => setIsMenuOpen(true)}>
-              &#9776;
-            </button>
-
-            <div style={{ opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
-              <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: '1.6rem', color: textColor, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: '1.2rem' }}>{greetEmoji}</span>
-                <span>{typedGreeting}</span>
-                <span className="portfolio-cursor">|</span>
-              </div>
-              <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.8rem', fontWeight: 300, color: mutedColor, marginTop: 2 }}>
-                {subtitles[view]}
-              </div>
+        <div style={{
+          padding: isMobile ? '1rem 1rem 0' : '1.5rem 2rem 0',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+          background: headerBg, flexWrap: 'wrap', gap: 8,
+        }}>
+          {/* Greeting */}
+          <div style={{ opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
+            <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: isMobile ? '1.25rem' : '1.6rem', color: textColor, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: isMobile ? '1rem' : '1.2rem' }}>{greetEmoji}</span>
+              Good {greeting}, {displayName}
+            </div>
+            <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.75rem', fontWeight: 300, color: mutedColor, marginTop: 2 }}>
+              {subtitles[view]}
             </div>
           </div>
 
           {/* Right controls */}
-          <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {user?.profile?.occupation && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            {/* Occupation badge — hide on very small screens */}
+            {!isMobile && user?.profile?.occupation && (
               <div style={{ fontSize: '0.72rem', color: '#7baa7a', background: 'rgba(123,170,122,0.1)', border: '1px solid rgba(123,170,122,0.2)', borderRadius: 99, padding: '4px 12px' }}>
                 {user.profile.occupation}
               </div>
             )}
 
             {/* Theme toggle */}
-            <button onClick={() => setTheme(t => THEME_CYCLE[t])} title={`Theme: ${theme} (click to cycle)`} style={{
+            <button onClick={() => setTheme(t => THEME_CYCLE[t])} title={`Theme: ${theme}`} style={{
               background: chipBg, border: `1px solid ${chipBorder}`, borderRadius: 99,
-              padding: '4px 12px', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5,
+              padding: '4px 10px', cursor: 'pointer', fontSize: '0.8rem',
+              display: 'flex', alignItems: 'center', gap: 4,
               color: mutedColor, fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s',
             }}>
               <span>{THEME_ICONS[theme]}</span>
-              <span style={{ fontSize: '0.7rem', textTransform: 'capitalize' }}>{theme}</span>
+              {!isMobile && <span style={{ fontSize: '0.7rem', textTransform: 'capitalize' }}>{theme}</span>}
             </button>
+
+            {/* Settings — desktop only (mobile uses bottom bar) */}
+            {!isMobile && (
+              <button onClick={() => setShowSettings(true)} title="Settings" style={{
+                background: chipBg, border: `1px solid ${chipBorder}`, borderRadius: 99,
+                padding: '5px 11px', cursor: 'pointer', fontSize: '0.85rem', color: mutedColor,
+              }}>⚙</button>
+            )}
 
             {/* Clickable date */}
             <button onClick={() => setShowDateViewer(true)} style={{
-              fontSize: '0.75rem', color: mutedColor, background: chipBg,
-              border: `1px solid ${chipBorder}`, borderRadius: 20, padding: '4px 12px',
+              fontSize: isMobile ? '0.7rem' : '0.75rem',
+              color: mutedColor, background: chipBg,
+              border: `1px solid ${chipBorder}`, borderRadius: 20,
+              padding: isMobile ? '4px 8px' : '4px 12px',
               cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s',
+              whiteSpace: 'nowrap',
             }}>
-              🗓️ {today}
+              📅 {isMobile ? now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : today}
             </button>
           </div>
         </div>
 
-        <div style={{ padding: '1.5rem 2rem', flex: 1 }}>
+        {/* Page content */}
+        <div style={{ padding: isMobile ? '1rem' : '1.5rem 2rem' }}>
           {views[view]}
         </div>
-        
-        <Footer theme={theme} />
+        <Footer theme={theme} isMobile={isMobile} />
       </main>
 
       {/* Modals */}
