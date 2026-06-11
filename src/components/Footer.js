@@ -93,15 +93,6 @@ function Footer({ theme, isMobile }) {
         justifyContent: 'center'
       }}>
 
-        {/* ROW 1: Core App Utility Chips */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6 }}>
-          {iconBtn('Feedback', '💬', handleFeedback)}
-          {iconBtn('Report bug', '🐛', handleBug)}
-          {iconBtn(copied ? 'Copied!' : 'Share', copied ? '✓' : '🔗', handleShare)}
-          {iconBtn('Changelog', '📋', () => setChangelog(true))}
-          {iconBtn('Privacy', '🔒', () => setPrivacy(true))}
-        </div>
-
         {/* ROW 2: Grounded Centered Branding & Copyright Frame */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 4, fontSize: '0.72rem', color: textMain }}>
@@ -121,6 +112,15 @@ function Footer({ theme, isMobile }) {
               {expanded ? 'Less ↑' : 'More info ↓'}
             </button>
           </div>
+        </div>
+        
+        {/* ROW 1: Core App Utility Chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6 }}>
+          {iconBtn('Feedback', '💬', handleFeedback)}
+          {iconBtn('Report bug', '🐛', handleBug)}
+          {iconBtn(copied ? 'Copied!' : 'Share', copied ? '✓' : '🔗', handleShare)}
+          {iconBtn('Changelog', '📋', () => setChangelog(true))}
+          {iconBtn('Privacy', '🔒', () => setPrivacy(true))}
         </div>
 
         {/* ROW 3: Dedicated Developer Connection Hub */}
