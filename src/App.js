@@ -21,9 +21,11 @@ function applyTheme(theme) {
 }
 
 function App() {
+  // --- STATE HOOKS (ALL FIXED AT TOP LEVEL) ---
   const [authMode, setAuthMode] = useState('login');
   const [user, setUser] = useState(null);
   const [appStage, setAppStage] = useState('auth');
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // FIXED: Placed at root level
 
   const [view, setView] = useState('dashboard');
   const [selectedMood, setSelectedMood] = useState(null);
@@ -140,7 +142,7 @@ function App() {
   const today = now.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
   const displayName = user?.profile?.nickname || user?.name || 'there';
 
-  // TYPEWRITER LOGIC ADDED HERE
+  // Typewriter logic
   const fullGreetingText = `Good ${greeting}, ${displayName}`;
   const [typedGreeting, setTypedGreeting] = useState('');
 
@@ -165,6 +167,7 @@ function App() {
   const THEME_ICONS = { dark: '🌙', light: '☀️', system: '💻' };
   const THEME_CYCLE = { dark: 'light', light: 'system', system: 'dark' };
 
+  // --- EARLY RETURN BLOCKS (DUE TO HOOK STACK RULE, PLACED BELOW ALL USER HOOK DECLARATIONS) ---
   if (appStage === 'auth') return <Login isSignup={authMode === 'signup'} onLogin={handleLogin} onSwitch={() => setAuthMode(m => m === 'login' ? 'signup' : 'login')} />;
   if (appStage === 'onboarding') return <Onboarding user={user} onComplete={handleOnboardingComplete} />;
 
@@ -188,9 +191,6 @@ function App() {
     relationship: <RelationshipAdvisor user={user} />,
   };
 
-  // Add this one state line right above your return statement if not already defined:
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   return (
     <div className="app-container" style={{ display: 'flex', minHeight: '100vh', background: mainBg, position: 'relative' }}>
       <style>{`
@@ -206,16 +206,14 @@ function App() {
           animation: blinkCursor 0.8s infinite;
         }
 
-        /* Hamburger button hidden on desktop workspace monitors */
         .hamburger-menu-btn {
           display: none;
         }
 
         /* ===================================================
-           PREMIUM MOBILE HAMBURGER OVERLAY DRAWERS SPECIFICATION
+           MOBILE RESPONSIVE OFF-CANVAS HAMBURGER MENU RULES
            =================================================== */
         @media (max-width: 768px) {
-          /* Force sidebar to act as an offline absolute off-canvas slide panel drawer */
           .sidebar-nav {
             position: fixed !important;
             top: 0 !important;
@@ -227,17 +225,14 @@ function App() {
             box-shadow: 5px 0 25px rgba(0,0,0,0.3);
           }
 
-          /* Reveal hidden sidebar drawer wrapper active panel flag */
           .sidebar-nav.open {
             transform: translateX(0) !important;
           }
 
-          /* Render display switches for tracking mobile drawer close button triggers */
           .menu-close-btn {
             display: block !important;
           }
 
-          /* Unhide mobile drawer dashboard action triggers */
           .hamburger-menu-btn {
             display: flex !important;
             align-items: center;
@@ -251,7 +246,6 @@ function App() {
             cursor: pointer;
           }
 
-          /* Compress layout structure across tracking cards rows */
           .main-header {
             padding: 1rem !important;
             flex-direction: column !important;
@@ -275,7 +269,6 @@ function App() {
         }
       `}</style>
 
-      {/* Connect drawer states directly into Sidebar properties */}
       <Sidebar 
         view={view} 
         setView={setView} 
