@@ -39,6 +39,7 @@ function App() {
   const [showDateViewer, setShowDateViewer] = useState(false);
   const [greetVisible, setGreetVisible] = useState(true);
   const [now, setNow] = useState(new Date());
+  const [typedGreeting, setTypedGreeting] = useState(''); // Typewriter state hook
 
   // Apply theme whenever it changes
   useEffect(() => {
@@ -142,6 +143,26 @@ function App() {
   const today = now.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
   const displayName = user?.profile?.nickname || user?.name || 'there';
 
+  // TYPEWRITER ANIMATION DISPATCHER
+  const fullGreetingText = `Good ${greeting}, ${displayName}`;
+  useEffect(() => {
+    let currentIdx = 0;
+    let currentString = '';
+    setTypedGreeting('');
+    
+    const typingInterval = setInterval(() => {
+      if (currentIdx < fullGreetingText.length) {
+        currentString += fullGreetingText.charAt(currentIdx);
+        setTypedGreeting(currentString);
+        currentIdx++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 45);
+
+    return () => clearInterval(typingInterval);
+  }, [fullGreetingText]);
+
   const THEME_ICONS = { dark: '🌙', light: '☀️', system: '💻' };
   const THEME_CYCLE = { dark: 'light', light: 'system', system: 'dark' };
 
@@ -170,11 +191,27 @@ function App() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: mainBg }}>
+      {/* Typewriter text cursor animation rules */}
+      <style>{`
+        @keyframes blinkCursor {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .portfolio-cursor {
+          display: inline-block;
+          margin-left: 2px;
+          color: #7baa7a;
+          font-weight: 300;
+          animation: blinkCursor 0.8s infinite;
+        }
+      `}</style>
+
       <Sidebar view={view} setView={setView} user={user} onLogout={handleLogout}
         onOpenSettings={() => setShowSettings(true)} theme={theme} isMobile={isMobile} />
 
+      {/* Added flex layout wrappers here to securely stretch main body */}
       <main style={{
-        flex: 1, overflowY: 'auto', background: mainBg,
+        flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: mainBg,
         paddingBottom: isMobile ? 70 : 0,   /* room for bottom nav */
         minWidth: 0,
       }}>
@@ -188,7 +225,8 @@ function App() {
           <div style={{ opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
             <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: isMobile ? '1.25rem' : '1.6rem', color: textColor, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: isMobile ? '1rem' : '1.2rem' }}>{greetEmoji}</span>
-              Good {greeting}, {displayName}
+              <span>{typedGreeting}</span>
+              <span className="portfolio-cursor">|</span>
             </div>
             <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.75rem', fontWeight: 300, color: mutedColor, marginTop: 2 }}>
               {subtitles[view]}
@@ -215,13 +253,7 @@ function App() {
               {!isMobile && <span style={{ fontSize: '0.7rem', textTransform: 'capitalize' }}>{theme}</span>}
             </button>
 
-            {/* Settings — desktop only (mobile uses bottom bar) */}
-            {!isMobile && (
-              <button onClick={() => setShowSettings(true)} title="Settings" style={{
-                background: chipBg, border: `1px solid ${chipBorder}`, borderRadius: 99,
-                padding: '5px 11px', cursor: 'pointer', fontSize: '0.85rem', color: mutedColor,
-              }}>⚙</button>
-            )}
+            {/* FIXED: The duplicate top-right Settings button code has been removed from here */}
 
             {/* Clickable date */}
             <button onClick={() => setShowDateViewer(true)} style={{
@@ -237,8 +269,8 @@ function App() {
           </div>
         </div>
 
-        {/* Page content */}
-        <div style={{ padding: isMobile ? '1rem' : '1.5rem 2rem' }}>
+        {/* FIXED: Added flex: 1 layout here to expand view elements and cleanly ground the footer */}
+        <div style={{ padding: isMobile ? '1rem' : '1.5rem 2rem', flex: 1 }}>
           {views[view]}
         </div>
         <Footer theme={theme} isMobile={isMobile} />
