@@ -18,11 +18,11 @@ function Footer({ theme, isMobile }) {
   const [copied, setCopied]           = useState(false);
 
   const isDark     = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const bg         = isDark ? '#0d1117'                : '#f0ede6';
-  const cardBg     = isDark ? '#161b22'                : '#ffffff';
+  const bg         = isDark ? '#0d1117'                 : '#f0ede6';
+  const cardBg     = isDark ? '#161b22'                 : '#ffffff';
   const border     = isDark ? 'rgba(120,130,110,0.12)' : 'rgba(0,0,0,0.08)';
   const border2    = isDark ? 'rgba(120,130,110,0.18)' : 'rgba(0,0,0,0.1)';
-  const textMain   = isDark ? '#666'                   : '#888';
+  const textMain   = isDark ? '#666'                    : '#888';
   const textMuted  = isDark ? '#3a3a34'                : '#bbb';
   const textAccent = isDark ? '#7baa7a'                : '#4a7a4a';
   const linkColor  = isDark ? '#8a8a82'                : '#777';
@@ -33,7 +33,7 @@ function Footer({ theme, isMobile }) {
   const iconBtn = (label, emoji, onClick, title) => (
     <button onClick={onClick} title={title || label} style={{
       display: 'flex', alignItems: 'center', gap: 5,
-      padding: '4px 10px', borderRadius: 99,
+      padding: '5px 12px', borderRadius: 99,
       background: 'transparent', border: `1px solid ${border2}`,
       color: linkColor, fontFamily: 'DM Sans, sans-serif', fontSize: '0.7rem',
       cursor: 'pointer', transition: 'all 0.2s',
@@ -45,7 +45,7 @@ function Footer({ theme, isMobile }) {
   const socialLink = (href, emoji, label) => (
     <a href={href} target="_blank" rel="noopener noreferrer" style={{
       display: 'flex', alignItems: 'center', gap: 5,
-      padding: '4px 10px', borderRadius: 99,
+      padding: '5px 12px', borderRadius: 99,
       background: 'transparent', border: `1px solid ${border2}`,
       color: linkColor, fontFamily: 'DM Sans, sans-serif', fontSize: '0.7rem',
       textDecoration: 'none', transition: 'all 0.2s',
@@ -81,46 +81,60 @@ function Footer({ theme, isMobile }) {
 
   return (
     <>
-      <footer style={{ background: bg, borderTop: `1px solid ${border}`, padding: '0.75rem 2rem', fontFamily: 'DM Sans, sans-serif' }}>
+      <footer style={{ 
+        background: bg, 
+        borderTop: `1px solid ${border}`, 
+        padding: '1.25rem 2rem', 
+        fontFamily: 'DM Sans, sans-serif',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
 
-        {/* Main row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '0.9rem', color: textAccent }}>
-              mind<span style={{ color: '#c8a97a', fontStyle: 'italic' }}>bloom</span>
-            </span>
-            <span style={{ fontSize: '0.7rem', color: textMain }}>
-              © {YEAR} <strong style={{ color: linkColor }}>Anant Bangar</strong>. All rights reserved.
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, fontSize: '0.7rem', color: linkColor }}>
-            <span style={{ opacity: 0.6 }}>v1.5.0</span>
-            {dot}
-            <span style={{ opacity: 0.6 }}>Rajasthan, India 🇮🇳</span>
-            {dot}
-            <button onClick={() => setExpanded(e => !e)} style={{ background: 'transparent', border: 'none', color: textAccent, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: '0.7rem', padding: 0 }}>
-              {expanded ? 'Less ↑' : 'More info ↓'}
-            </button>
-          </div>
-        </div>
-
-        {/* Action buttons row */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: '0.625rem', alignItems: 'center' }}>
+        {/* ROW 1: Core App Utility Chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6 }}>
           {iconBtn('Feedback', '💬', handleFeedback)}
           {iconBtn('Report bug', '🐛', handleBug)}
           {iconBtn(copied ? 'Copied!' : 'Share', copied ? '✓' : '🔗', handleShare)}
           {iconBtn('Changelog', '📋', () => setChangelog(true))}
           {iconBtn('Privacy', '🔒', () => setPrivacy(true))}
-          {!isMobile && <span style={{ marginLeft: 4, fontSize: '0.65rem', color: textMuted }}>Connect:</span>}
+        </div>
+
+        {/* ROW 2: Grounded Centered Branding & Copyright Frame */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 4, fontSize: '0.72rem', color: textMain }}>
+            <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: '0.95rem', color: textAccent, marginRight: 4 }}>
+              mind<span style={{ color: '#c8a97a', fontStyle: 'italic' }}>bloom</span>
+            </span>
+            {dot}
+            <span>© {YEAR} <strong style={{ color: linkColor }}>Anant Bangar</strong>. All rights reserved.</span>
+          </div>
+          
+          <div style={{ fontSize: '0.68rem', color: linkColor, opacity: 0.8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span>v1.5.0</span>
+            {dot}
+            <span>Rajasthan, India 🇮🇳</span>
+            {dot}
+            <button onClick={() => setExpanded(e => !e)} style={{ background: 'transparent', border: 'none', color: textAccent, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: '0.68rem', padding: 0 }}>
+              {expanded ? 'Less ↑' : 'More info ↓'}
+            </button>
+          </div>
+        </div>
+
+        {/* ROW 3: Dedicated Developer Connection Hub */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+          <span style={{ fontSize: '0.65rem', color: textMuted, marginRight: 2 }}>Connect:</span>
           {socialLink('https://www.linkedin.com/in/anant-bangar', '💼', isMobile ? '' : 'LinkedIn')}
           {socialLink('https://www.hackerrank.com/profile/anantbangar2005', '⭐', isMobile ? '' : 'HackerRank')}
           {socialLink('https://leetcode.com/u/anantbangar2005', '🧩', isMobile ? '' : 'LeetCode')}
           {socialLink('mailto:anantbangar2005@gmail.com', '📧', isMobile ? '' : 'Email')}
         </div>
 
-        {/* Expanded info */}
+        {/* Expanded Info Display Panels */}
         {expanded && (
-          <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: `1px solid ${border}`, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ marginTop: '0.5rem', paddingTop: '1rem', borderTop: `1px solid ${border}`, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1.25rem', width: '100%', maxWidth: '1000px', textAlign: 'left' }}>
             <div>
               <div style={{ fontSize: '0.63rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: textAccent, marginBottom: 6 }}>About</div>
               <div style={{ fontSize: '0.71rem', color: textMain, lineHeight: 1.7 }}>MindBloom is an AI-powered mental health & productivity companion — a personal project by Anant Bangar, B.Tech CSE student at Arya College of Engineering & IT, Jaipur (2023–2027).</div>
