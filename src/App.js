@@ -13,12 +13,13 @@ import Songs from './components/Songs';
 import Settings from './components/Settings';
 import DateViewer from './components/DateViewer';
 import Footer from './components/Footer';
+import TypewriterText from './components/TypewriterText';
 
 // Apply theme to document root
 function applyTheme(theme) {
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  document.body.style.background = isDark ? '#0d1117' : '#f5f5f0';
-  document.body.style.color = isDark ? '#e8e4dc' : '#1a1a1a';
+  document.body.style.background = isDark ? '#0d1117' : '#faf8f3';
+  document.body.style.color = isDark ? '#e8e4dc' : '#1c1c18';
 }
 
 function App() {
@@ -39,7 +40,6 @@ function App() {
   const [showDateViewer, setShowDateViewer] = useState(false);
   const [greetVisible, setGreetVisible] = useState(true);
   const [now, setNow] = useState(new Date());
-  const [typedGreeting, setTypedGreeting] = useState(''); // Typewriter state hook
 
   // Apply theme whenever it changes
   useEffect(() => {
@@ -113,7 +113,10 @@ function App() {
     setAppStage('auth'); setAuthMode('login'); setView('dashboard');
   };
 
-  const handleUserUpdate = (updatedUser) => setUser(updatedUser);
+  const handleDeleteAccount = () => {
+    setUser(null); setTasks([]); setSelectedMood(null); setMoodHistory({});
+    setAppStage('auth'); setAuthMode('login'); setView('dashboard'); setShowSettings(false);
+  };
 
   const saveMoods = (updated) => {
     setMoodHistory(updated);
@@ -130,38 +133,18 @@ function App() {
 
   // Theme helpers
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const mainBg = isDark ? '#0d1117' : '#f5f5f0';
-  const headerBg = isDark ? '#0d1117' : '#f5f5f0';
-  const textColor = isDark ? '#f0ebe0' : '#1a1a1a';
-  const mutedColor = isDark ? '#8a8a82' : '#6a6a62';
-  const chipBg = isDark ? '#161b22' : '#e8e4da';
-  const chipBorder = isDark ? 'rgba(120,130,110,0.18)' : 'rgba(0,0,0,0.1)';
+  const mainBg    = isDark ? '#0d1117'  : '#faf8f3';
+  const headerBg  = isDark ? '#0d1117'  : '#faf8f3';
+  const textColor = isDark ? '#f0ebe0'  : '#1c1c18';
+  const mutedColor= isDark ? '#8a8a82'  : '#7a7a72';
+  const chipBg    = isDark ? '#161b22'  : '#f0ece3';
+  const chipBorder= isDark ? 'rgba(120,130,110,0.18)' : 'rgba(0,0,0,0.1)';
 
   const hour = now.getHours();
   const greeting = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
   const greetEmoji = hour < 12 ? '🌤️' : hour < 17 ? '☀️' : '🌙';
   const today = now.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
   const displayName = user?.profile?.nickname || user?.name || 'there';
-
-  // TYPEWRITER ANIMATION DISPATCHER
-  const fullGreetingText = `Good ${greeting}, ${displayName}`;
-  useEffect(() => {
-    let currentIdx = 0;
-    let currentString = '';
-    setTypedGreeting('');
-    
-    const typingInterval = setInterval(() => {
-      if (currentIdx < fullGreetingText.length) {
-        currentString += fullGreetingText.charAt(currentIdx);
-        setTypedGreeting(currentString);
-        currentIdx++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 45);
-
-    return () => clearInterval(typingInterval);
-  }, [fullGreetingText]);
 
   const THEME_ICONS = { dark: '🌙', light: '☀️', system: '💻' };
   const THEME_CYCLE = { dark: 'light', light: 'system', system: 'dark' };
@@ -191,27 +174,15 @@ function App() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: mainBg }}>
-      {/* Typewriter text cursor animation rules */}
-      <style>{`
-        @keyframes blinkCursor {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-        .portfolio-cursor {
-          display: inline-block;
-          margin-left: 2px;
-          color: #7baa7a;
-          font-weight: 300;
-          animation: blinkCursor 0.8s infinite;
-        }
-      `}</style>
-
       <Sidebar view={view} setView={setView} user={user} onLogout={handleLogout}
         onOpenSettings={() => setShowSettings(true)} theme={theme} isMobile={isMobile} />
 
-      {/* Added flex layout wrappers here to securely stretch main body */}
       <main style={{
-        flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: mainBg,
+        flex: 1, 
+        display: 'flex',          /* Injected layout property */
+        flexDirection: 'column',  /* Injected layout property */
+        overflowY: 'auto', 
+        background: mainBg,
         paddingBottom: isMobile ? 70 : 0,   /* room for bottom nav */
         minWidth: 0,
       }}>
@@ -221,12 +192,17 @@ function App() {
           display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
           background: headerBg, flexWrap: 'wrap', gap: 8,
         }}>
-          {/* Greeting */}
+          {/* Greeting with typewriter */}
           <div style={{ opacity: greetVisible ? 1 : 0, transform: greetVisible ? 'translateY(0)' : 'translateY(6px)', transition: 'opacity 0.4s ease, transform 0.4s ease' }}>
             <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: isMobile ? '1.25rem' : '1.6rem', color: textColor, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: isMobile ? '1rem' : '1.2rem' }}>{greetEmoji}</span>
-              <span>{typedGreeting}</span>
-              <span className="portfolio-cursor">|</span>
+              <TypewriterText
+                key={`${greeting}-${displayName}-${view}`}
+                text={`Good ${greeting}, ${displayName}`}
+                speed={38}
+                color={textColor}
+                style={{ fontFamily: "'DM Serif Display', serif", fontSize: isMobile ? '1.25rem' : '1.6rem' }}
+              />
             </div>
             <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '0.75rem', fontWeight: 300, color: mutedColor, marginTop: 2 }}>
               {subtitles[view]}
@@ -253,7 +229,7 @@ function App() {
               {!isMobile && <span style={{ fontSize: '0.7rem', textTransform: 'capitalize' }}>{theme}</span>}
             </button>
 
-            {/* FIXED: The duplicate top-right Settings button code has been removed from here */}
+            {/* Settings — desktop only, removed from header, use sidebar */}
 
             {/* Clickable date */}
             <button onClick={() => setShowDateViewer(true)} style={{
@@ -269,7 +245,7 @@ function App() {
           </div>
         </div>
 
-        {/* FIXED: Added flex: 1 layout here to expand view elements and cleanly ground the footer */}
+        {/* Page content */}
         <div style={{ padding: isMobile ? '1rem' : '1.5rem 2rem', flex: 1 }}>
           {views[view]}
         </div>
@@ -277,7 +253,7 @@ function App() {
       </main>
 
       {/* Modals */}
-      {showSettings && <Settings user={user} onUpdate={handleUserUpdate} onClose={() => setShowSettings(false)} theme={theme} />}
+      {showSettings && <Settings user={user} onUpdate={u => setUser(u)} onDelete={handleDeleteAccount} onClose={() => setShowSettings(false)} theme={theme} />}
       {showDateViewer && <DateViewer onClose={() => setShowDateViewer(false)} moodHistory={moodHistory} tasks={tasks} theme={theme} />}
     </div>
   );

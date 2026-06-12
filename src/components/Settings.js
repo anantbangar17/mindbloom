@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 const occupations = ['Student', 'Working Professional', 'Freelancer', 'Entrepreneur', 'Homemaker', 'Researcher', 'Artist / Creative', 'Other'];
 const diseaseSuggestions = ['Migraine', 'Anxiety', 'Depression', 'Insomnia', 'Hypertension', 'Diabetes', 'Asthma', 'Back Pain', 'ADHD', 'PCOS', 'Thyroid', 'None'];
 
-function Settings({ user, onUpdate, onClose, theme }) {
+function Settings({ user, onUpdate, onClose, theme, onDelete }) {
   const p = user?.profile || {};
   const [form, setForm] = useState({
     nickname: p.nickname || user?.name || '',
@@ -12,6 +12,7 @@ function Settings({ user, onUpdate, onClose, theme }) {
     diseases: p.diseases || [],
   });
   const [saved, setSaved] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
   const toggleDisease = d => setForm(f => ({
@@ -27,6 +28,15 @@ function Settings({ user, onUpdate, onClose, theme }) {
     onUpdate(updated);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleDelete = () => {
+    // Remove all user data
+    localStorage.removeItem(`mb_user_${user.email}`);
+    localStorage.removeItem(`mb_tasks_${user.email}`);
+    localStorage.removeItem(`mb_moods_${user.email}`);
+    localStorage.removeItem('mb_current');
+    if (onDelete) onDelete();
   };
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -96,6 +106,37 @@ function Settings({ user, onUpdate, onClose, theme }) {
         }}>
           {saved ? '✓ Saved!' : 'Save changes'}
         </button>
+
+        {/* Delete account */}
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: `1px solid ${border}` }}>
+          <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#e07070', marginBottom: 8 }}>Danger zone</div>
+          {!confirmDelete ? (
+            <button onClick={() => setConfirmDelete(true)} style={{
+              width: '100%', padding: '10px', borderRadius: 10,
+              border: '1px solid rgba(224,112,112,0.3)', background: 'rgba(224,112,112,0.07)',
+              color: '#e07070', fontFamily: 'DM Sans, sans-serif', fontSize: '0.875rem', cursor: 'pointer',
+            }}>
+              🗑 Delete my account
+            </button>
+          ) : (
+            <div style={{ background: 'rgba(224,112,112,0.08)', border: '1px solid rgba(224,112,112,0.25)', borderRadius: 10, padding: '1rem' }}>
+              <div style={{ fontSize: '0.85rem', color: '#f0ebe0', marginBottom: '0.5rem', fontWeight: 500 }}>Are you sure?</div>
+              <div style={{ fontSize: '0.78rem', color: muted, marginBottom: '0.875rem', lineHeight: 1.6 }}>
+                This will permanently delete your account, all mood logs, tasks, habits, and journal entries. This cannot be undone.
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setConfirmDelete(false)} style={{
+                  flex: 1, padding: '8px', borderRadius: 8, border: `1px solid ${border}`,
+                  background: 'transparent', color: muted, fontFamily: 'DM Sans, sans-serif', fontSize: '0.82rem', cursor: 'pointer',
+                }}>Cancel</button>
+                <button onClick={handleDelete} style={{
+                  flex: 1, padding: '8px', borderRadius: 8, border: 'none',
+                  background: '#c0392b', color: 'white', fontFamily: 'DM Sans, sans-serif', fontSize: '0.82rem', cursor: 'pointer',
+                }}>Yes, delete everything</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

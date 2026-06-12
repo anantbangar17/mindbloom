@@ -116,16 +116,16 @@ function Songs({ selectedMood }) {
         <div style={{ fontSize: '0.78rem', color: '#8a8a82', marginBottom: '0.875rem' }}>
           We'll search for "{buildSearchQuery()}" in your chosen app.
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {MUSIC_APPS.map(app => (
             <button key={app.name} onClick={() => openInApp(app)} style={{
-              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px',
-              borderRadius: 10, border: `1px solid ${preferredApp === app.name ? 'rgba(123,170,122,0.5)' : 'rgba(120,130,110,0.22)'}`,
-              background: preferredApp === app.name ? 'rgba(123,170,122,0.12)' : 'transparent',
+              display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px',
+              borderRadius: 10, border: '1px solid rgba(120,130,110,0.22)',
+              background: 'transparent',
               cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.2s',
             }}>
-              <span style={{ fontSize: '1.1rem' }}>{app.icon}</span>
-              <span style={{ fontSize: '0.78rem', color: '#d0ccc4' }}>{app.name}</span>
+              <span style={{ fontSize: '1.2rem' }}>{app.icon}</span>
+              <span style={{ fontSize: '0.82rem', color: '#d0ccc4' }}>{app.name}</span>
             </button>
           ))}
         </div>

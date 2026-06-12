@@ -16,12 +16,83 @@ const AFFIRMATIONS = [
   "Today's effort is tomorrow's strength.",
 ];
 
-const TIPS = [
-  "Try box breathing: inhale 4s, hold 4s, exhale 4s, hold 4s.",
-  "A 5-minute walk can help clear a foggy mind.",
-  "Writing one thing you're grateful for rewires the brain over time.",
-  "Pomodoro: 25 min focus, 5 min break — your brain will thank you.",
+// 8–10 tips per mood — purely rule-based, no AI needed
+const MOOD_TIPS = {
+  0: [ // Low
+    "It's okay to not be okay. Rest is productive too.",
+    "Try box breathing: inhale 4s, hold 4s, exhale 4s, hold 4s.",
+    "Step outside for 5 minutes — sunlight helps reset your mood.",
+    "Write down one thing that went okay today, however small.",
+    "Drink a glass of water — dehydration quietly worsens low moods.",
+    "Put on a song that feels like a warm blanket.",
+    "Be gentle with yourself today. You're doing your best.",
+    "Talk to someone you trust, even just a quick message.",
+    "Avoid big decisions when you're feeling low — rest first.",
+    "A short nap (20 min) can restore more than you think.",
+  ],
+  1: [ // Meh
+    "Feeling 'meh' is valid. You don't have to feel amazing.",
+    "Try a 10-minute walk — movement shifts energy better than anything.",
+    "Pick one tiny task to complete. Done > perfect.",
+    "Change your environment briefly — move to a different room.",
+    "A warm drink and 5 minutes of silence can reset your head.",
+    "Put on music that makes you want to move.",
+    "Write 3 things you're looking forward to, even small ones.",
+    "Stretch for 5 minutes — tension in the body affects your mood.",
+    "Reach out to a friend — connection lifts 'meh' faster than solo effort.",
+    "Sometimes 'meh' just means your brain needs a break. Take one.",
+  ],
+  2: [ // Okay
+    "Okay is a great foundation — build something on it today.",
+    "Use this steady energy for a task you've been putting off.",
+    "Try the Pomodoro technique: 25 min focus, 5 min break.",
+    "A 15-minute walk can push 'okay' to 'good' quickly.",
+    "Write one thing you're grateful for — even if it feels ordinary.",
+    "A calm mood is perfect for journaling your thoughts.",
+    "Check in with someone — when you're okay is a great time to give.",
+    "Do one thing that makes tomorrow-you grateful.",
+    "Use this time to plan your evening so it's intentional.",
+    "Hydrate, eat something nourishing, and keep the momentum.",
+  ],
+  3: [ // Good
+    "Ride this energy — tackle something that matters to you.",
+    "Good moods are contagious. Reach out and brighten someone's day.",
+    "Log what made today feel good — patterns are powerful.",
+    "Deep work is easiest when you feel good. Block 90 minutes.",
+    "This is a great time to start a new habit.",
+    "Exercise when you feel good — it amplifies the benefits.",
+    "Write something creative — your imagination is sharper right now.",
+    "Share your energy: help a classmate, colleague, or friend.",
+    "Set a challenging goal today — you're in the zone.",
+    "Take a moment to appreciate how you feel. Savour it.",
+  ],
+  4: [ // Great
+    "You're at your best — protect this energy intentionally.",
+    "Tackle your hardest, most important task right now.",
+    "Share this energy — call someone who might need a boost.",
+    "This is perfect for creative work, problem-solving, or learning.",
+    "Plan your week ahead while your mind is sharp.",
+    "Exercise hard today — your body matches your mood.",
+    "Write down what created this feeling so you can recreate it.",
+    "Start something you've been dreaming about — today is the day.",
+    "Celebrate this feeling — you've earned it.",
+    "Use this confidence to have a conversation you've been avoiding.",
+  ],
+};
+
+// Default tips shown before mood is logged
+const DEFAULT_TIPS = [
+  "Log your mood to get personalised tips.",
+  "How you start your morning shapes your whole day.",
+  "Drink water. Seriously — most people are dehydrated.",
+  "One deep breath is always available, always free.",
 ];
+
+function getTip(moodIdx) {
+  const pool = moodIdx !== null ? MOOD_TIPS[moodIdx] : DEFAULT_TIPS;
+  const minuteSlot = Math.floor(Date.now() / 60000); // changes every minute
+  return pool[minuteSlot % pool.length];
+}
 
 function Dashboard({ selectedMood, setSelectedMood, tasks, toggleTask, addTask, affIdx, setAffIdx, moodHistory, setMoodHistory }) {
   const [newTaskText, setNewTaskText] = useState('');
@@ -42,7 +113,7 @@ function Dashboard({ selectedMood, setSelectedMood, tasks, toggleTask, addTask, 
 
   const doneTasks = tasks.filter(t => t.done).length;
   const taskPct = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
-  const tip = TIPS[new Date().getDay() % TIPS.length];
+  const tip = getTip(selectedMood);
 
   const handleAddTask = () => {
     if (!newTaskText.trim()) return;
@@ -128,7 +199,10 @@ function Dashboard({ selectedMood, setSelectedMood, tasks, toggleTask, addTask, 
               ✦ Feeling {MOODS[selectedMood].label} — logged at {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
             </div>
           )}
-          <div style={{ marginTop: '0.875rem', background: 'rgba(123,170,122,0.05)', border: '1px solid rgba(123,170,122,0.15)', borderRadius: 8, padding: '8px 10px', fontSize: '0.78rem', color: '#a8c5a0', lineHeight: 1.6 }}>
+          <div style={{ marginTop: '0.875rem', background: 'rgba(123,170,122,0.05)', border: '1px solid rgba(123,170,122,0.15)', borderRadius: 8, padding: '10px 12px', fontSize: '0.78rem', color: '#a8c5a0', lineHeight: 1.65 }}>
+            <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7baa7a', marginBottom: 4, opacity: 0.8 }}>
+              {selectedMood !== null ? `Tip for when you're feeling ${MOODS[selectedMood].label.toLowerCase()}` : 'Wellness tip'}
+            </div>
             💡 {tip}
           </div>
         </div>
