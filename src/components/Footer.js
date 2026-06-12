@@ -5,11 +5,11 @@ const YEAR = new Date().getFullYear();
 const CHANGELOG = [
   { version: 'v1.0.0', date: 'Jun 2025', notes: 'Initial release — Dashboard, Mood Log, Focus, Habits, Journal, Heart Space' },
   { version: 'v1.1.0', date: 'Jun 2025', notes: 'Multi-user auth (Login/Signup), Onboarding flow, per-user data isolation' },
-  { version: 'v1.2.0', date: 'Jun 2025', notes: 'Fixed hardcoded fake data — habits and mood chart now show real user entries only' },
-  { version: 'v1.3.0', date: 'Jun 2025', notes: 'Mood streak counter, greeting animation, live clock' },
+  { version: 'v1.2.0', date: 'Jun 2025', notes: 'habits and mood chart now show real user entries only' },
+  { version: 'v1.3.0', date: 'Jun 2025', notes: 'Mood streak counter, live clock' },
   { version: 'v1.4.0', date: 'Jun 2025', notes: 'Theme toggle (dark/light/system), Settings modal, clickable date viewer, Songs page' },
   { version: 'v1.5.0', date: 'Jun 2025', notes: 'Changelog, feedback/bug buttons, social links, privacy notice, app icon' },
-  { version: 'v1.6.0', date: 'Jun 2025', notes: 'Typewriter greeting, mood-based tips, responsive mobile layout, Option B bottom nav, delete account' },
+  { version: 'v1.6.0', date: 'Jun 2025', notes: 'Typewriter greeting, mood-based tips, responsive mobile layout, delete account' },
 ];
 
 function Footer({ theme, isMobile }) {
