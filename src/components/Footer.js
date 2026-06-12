@@ -104,9 +104,9 @@ function Footer({ theme, isMobile }) {
           {/* LEFT — social / contact links */}
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={{ fontSize: '0.65rem', color: mutedColor, marginRight: 2 }}>Connect:</span>
-            {socialChip('https://www.linkedin.com/in/anant-bangar', '💼', 'LinkedIn')}
-            {socialChip('https://www.hackerrank.com/profile/anantbangar2005', '⭐', 'HackerRank')}
-            {socialChip('https://leetcode.com/u/anantbangar2005', '🧩', 'LeetCode')}
+            {socialChip('https://www.linkedin.com/in/anant-bangar-53167528a/', '💼', 'LinkedIn')}
+            {socialChip('https://www.hackerrank.com/profile/anantbangar33', '⭐', 'HackerRank')}
+            {socialChip('https://leetcode.com/u/anantbangar17/', '🧩', 'LeetCode')}
             {socialChip('mailto:anantbangar2005@gmail.com', '📧', 'Email')}
           </div>
 
