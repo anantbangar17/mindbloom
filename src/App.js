@@ -14,6 +14,19 @@ import Settings from './components/Settings';
 import DateViewer from './components/DateViewer';
 import Footer from './components/Footer';
 import TypewriterText from './components/TypewriterText';
+import Breathing from './components/Breathing';
+import Gratitude from './components/Gratitude';
+import MoodInsights from './components/MoodInsights';
+import DailyQuote from './components/DailyQuote';
+import WellnessTracker from './components/WellnessTracker';
+import SessionLog from './components/SessionLog';
+import SleepTracker from './components/SleepTracker';
+import EmergencyCalm from './components/EmergencyCalm';
+import WeeklyReview from './components/WeeklyReview';
+import StreakBadges from './components/StreakBadges';
+import CustomAffirmations from './components/CustomAffirmations';
+import AnxietyCheckin from './components/AnxietyCheckin';
+import FocusGoals from './components/FocusGoals';
 
 // Apply theme to document root
 function applyTheme(theme) {
@@ -31,6 +44,7 @@ function App() {
   const [view, setView] = useState('dashboard');
   const [selectedMood, setSelectedMood] = useState(null);
   const [moodHistory, setMoodHistory] = useState({});
+  const [moodLog, setMoodLog] = useState([]); // longitudinal [{date, moodIdx}] — powers Mood Insights
   const [tasks, setTasks] = useState([]);
   const [affIdx, setAffIdx] = useState(0);
 
@@ -90,6 +104,8 @@ function App() {
         if (savedTasks) setTasks(JSON.parse(savedTasks));
         const savedMoods = localStorage.getItem(`mb_moods_${current}`);
         setMoodHistory(savedMoods ? JSON.parse(savedMoods) : {});
+        const savedMoodLog = localStorage.getItem(`mb_moodlog_${current}`);
+        setMoodLog(savedMoodLog ? JSON.parse(savedMoodLog) : []);
         setAppStage(userData.onboarded ? 'app' : 'onboarding');
       }
     }
@@ -101,6 +117,8 @@ function App() {
     setTasks(savedTasks ? JSON.parse(savedTasks) : []);
     const savedMoods = localStorage.getItem(`mb_moods_${userData.email}`);
     setMoodHistory(savedMoods ? JSON.parse(savedMoods) : {});
+    const savedMoodLog = localStorage.getItem(`mb_moodlog_${userData.email}`);
+    setMoodLog(savedMoodLog ? JSON.parse(savedMoodLog) : []);
     setSelectedMood(null);
     setAppStage(userData.onboarded ? 'app' : 'onboarding');
   };
@@ -109,18 +127,30 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('mb_current');
-    setUser(null); setTasks([]); setSelectedMood(null); setMoodHistory({});
+    setUser(null); setTasks([]); setSelectedMood(null); setMoodHistory({}); setMoodLog([]);
     setAppStage('auth'); setAuthMode('login'); setView('dashboard');
   };
 
   const handleDeleteAccount = () => {
-    setUser(null); setTasks([]); setSelectedMood(null); setMoodHistory({});
+    setUser(null); setTasks([]); setSelectedMood(null); setMoodHistory({}); setMoodLog([]);
     setAppStage('auth'); setAuthMode('login'); setView('dashboard'); setShowSettings(false);
   };
 
   const saveMoods = (updated) => {
     setMoodHistory(updated);
-    if (user) localStorage.setItem(`mb_moods_${user.email}`, JSON.stringify(updated));
+    if (user) {
+      localStorage.setItem(`mb_moods_${user.email}`, JSON.stringify(updated));
+      // Also record today's entry in the longitudinal log used by Mood Insights
+      const todayIdx = (() => { const d = new Date().getDay(); return d === 0 ? 6 : d - 1; })();
+      const todayMoodIdx = updated[todayIdx];
+      if (todayMoodIdx !== undefined && todayMoodIdx !== null) {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const withoutToday = moodLog.filter(e => e.date !== todayStr);
+        const newLog = [...withoutToday, { date: todayStr, moodIdx: todayMoodIdx }];
+        setMoodLog(newLog);
+        localStorage.setItem(`mb_moodlog_${user.email}`, JSON.stringify(newLog));
+      }
+    }
   };
   const saveTasks = (updated) => {
     setTasks(updated);
@@ -160,6 +190,19 @@ function App() {
     journal: 'Write it out — clarity follows',
     songs: 'Music for your mood',
     relationship: 'A safe space for your heart',
+    breathing: 'Slow down, one breath at a time',
+    gratitude: 'Notice the good, however small',
+    insights: 'Patterns in how you feel over time',
+    quote: 'A little inspiration, tuned to your mood',
+    wellness: 'Hydration and meals, tracked simply',
+    sessions: 'Log your study & work time',
+    sleep: 'Track your nightly rest',
+    emergency: 'Pause. Breathe. You are safe.',
+    weeklyreview: 'Reflect on your week',
+    streaks: 'Celebrate your consistency',
+    affirmations: 'Words that lift you up',
+    anxiety: 'Ground yourself, one sense at a time',
+    focusgoals: 'Set goals, track milestones',
   };
 
   const views = {
@@ -170,6 +213,19 @@ function App() {
     journal:      <Journal affIdx={affIdx} setAffIdx={setAffIdx} />,
     songs:        <Songs selectedMood={selectedMood} />,
     relationship: <RelationshipAdvisor user={user} />,
+    breathing:    <Breathing />,
+    gratitude:    <Gratitude user={user} />,
+    insights:     <MoodInsights moodLog={moodLog} />,
+    quote:        <DailyQuote selectedMood={selectedMood} />,
+    wellness:     <WellnessTracker user={user} />,
+    sessions:     <SessionLog user={user} />,
+    sleep:        <SleepTracker user={user} />,
+    emergency:    <EmergencyCalm />,
+    weeklyreview: <WeeklyReview user={user} />,
+    streaks:      <StreakBadges user={user} />,
+    affirmations: <CustomAffirmations user={user} />,
+    anxiety:      <AnxietyCheckin />,
+    focusgoals:   <FocusGoals user={user} />,
   };
 
   return (
