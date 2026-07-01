@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiUpdateProfile, apiDeleteAccount } from '../api';
 
 const occupations = ['Student', 'Working Professional', 'Freelancer', 'Entrepreneur', 'Homemaker', 'Researcher', 'Artist / Creative', 'Other'];
 const diseaseSuggestions = ['Migraine', 'Anxiety', 'Depression', 'Insomnia', 'Hypertension', 'Diabetes', 'Asthma', 'Back Pain', 'ADHD', 'PCOS', 'Thyroid', 'None'];
@@ -7,12 +8,15 @@ function Settings({ user, onUpdate, onClose, theme, onDelete }) {
   const p = user?.profile || {};
   const [form, setForm] = useState({
     nickname: p.nickname || user?.name || '',
-    age: p.age || '',
+    age: p.ageRange || '',
     occupation: p.occupation || '',
-    diseases: p.diseases || [],
+    diseases: p.healthConditions || [],
   });
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
   const toggleDisease = d => setForm(f => ({
@@ -20,23 +24,40 @@ function Settings({ user, onUpdate, onClose, theme, onDelete }) {
     diseases: f.diseases.includes(d) ? f.diseases.filter(x => x !== d) : [...f.diseases, d],
   }));
 
-  const handleSave = () => {
-    const key = `mb_user_${user.email}`;
-    const raw = JSON.parse(localStorage.getItem(key) || '{}');
-    const updated = { ...raw, profile: { ...raw.profile, ...form }, name: form.nickname };
-    localStorage.setItem(key, JSON.stringify(updated));
-    onUpdate(updated);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      const updatedUser = await apiUpdateProfile({
+        name: form.nickname,
+        profile: {
+          nickname: form.nickname,
+          ageRange: form.age,
+          occupation: form.occupation,
+          healthConditions: form.diseases,
+        },
+      });
+      onUpdate(updatedUser);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err.message || 'Failed to save. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDelete = () => {
-    // Remove all user data
-    localStorage.removeItem(`mb_user_${user.email}`);
-    localStorage.removeItem(`mb_tasks_${user.email}`);
-    localStorage.removeItem(`mb_moods_${user.email}`);
-    localStorage.removeItem('mb_current');
-    if (onDelete) onDelete();
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await apiDeleteAccount();
+    } catch {
+      // Even if the API call fails, clear local state and log out
+    } finally {
+      localStorage.removeItem('mb_token');
+      localStorage.removeItem('mb_current');
+      if (onDelete) onDelete();
+    }
   };
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -99,12 +120,19 @@ function Settings({ user, onUpdate, onClose, theme, onDelete }) {
           {diseaseSuggestions.map(d => <Pill key={d} label={d} selected={form.diseases.includes(d)} onClick={() => toggleDisease(d)} />)}
         </div>
 
-        <button onClick={handleSave} style={{
+        {error && (
+          <div style={{ background: 'rgba(224,112,112,0.1)', border: '1px solid rgba(224,112,112,0.25)', borderRadius: 8, padding: '8px 12px', fontSize: '0.8rem', color: '#e07070', marginBottom: '0.75rem' }}>
+            {error}
+          </div>
+        )}
+
+        <button onClick={handleSave} disabled={saving} style={{
           width: '100%', padding: '11px', borderRadius: 10, border: 'none',
           background: saved ? '#4a7a4a' : '#7baa7a', color: 'white',
-          fontFamily: 'DM Sans, sans-serif', fontSize: '0.9rem', fontWeight: 500, cursor: 'pointer', transition: 'background 0.2s',
+          fontFamily: 'DM Sans, sans-serif', fontSize: '0.9rem', fontWeight: 500,
+          cursor: saving ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
         }}>
-          {saved ? '✓ Saved!' : 'Save changes'}
+          {saving ? 'Saving...' : saved ? '✓ Saved!' : 'Save changes'}
         </button>
 
         {/* Delete account */}
@@ -122,17 +150,19 @@ function Settings({ user, onUpdate, onClose, theme, onDelete }) {
             <div style={{ background: 'rgba(224,112,112,0.08)', border: '1px solid rgba(224,112,112,0.25)', borderRadius: 10, padding: '1rem' }}>
               <div style={{ fontSize: '0.85rem', color: '#f0ebe0', marginBottom: '0.5rem', fontWeight: 500 }}>Are you sure?</div>
               <div style={{ fontSize: '0.78rem', color: muted, marginBottom: '0.875rem', lineHeight: 1.6 }}>
-                This will permanently delete your account, all mood logs, tasks, habits, and journal entries. This cannot be undone.
+                This will permanently delete your account and all your data from our servers. This cannot be undone.
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setConfirmDelete(false)} style={{
+                <button onClick={() => setConfirmDelete(false)} disabled={deleting} style={{
                   flex: 1, padding: '8px', borderRadius: 8, border: `1px solid ${border}`,
                   background: 'transparent', color: muted, fontFamily: 'DM Sans, sans-serif', fontSize: '0.82rem', cursor: 'pointer',
                 }}>Cancel</button>
-                <button onClick={handleDelete} style={{
+                <button onClick={handleDelete} disabled={deleting} style={{
                   flex: 1, padding: '8px', borderRadius: 8, border: 'none',
                   background: '#c0392b', color: 'white', fontFamily: 'DM Sans, sans-serif', fontSize: '0.82rem', cursor: 'pointer',
-                }}>Yes, delete everything</button>
+                }}>
+                  {deleting ? 'Deleting...' : 'Yes, delete everything'}
+                </button>
               </div>
             </div>
           )}
